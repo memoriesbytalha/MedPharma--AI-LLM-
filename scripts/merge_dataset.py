@@ -4,7 +4,7 @@ import os
 MAIN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 print(MAIN_DIR)
 # Load datasets
-interactions = pd.read_csv(os.path.join(MAIN_DIR, "data", "interaction_explanations.csv"))   # CSV1
+interactions = pd.read_csv(os.path.join(MAIN_DIR, "data", "drug_interactions_no_sym.csv"))   # CSV1
 drugbank = pd.read_csv(os.path.join(MAIN_DIR, "data", "structure links.csv"))      # CSV2
 
 # Normalize drug names (lowercase for safe merging)
@@ -33,6 +33,6 @@ merged = merged.merge(
 }).drop(columns=['Name'])
 
 # Save merged dataset
-merged.to_csv(os.path.join(MAIN_DIR, "data", "merged_interactions.csv"), index=False)
+merged.to_csv(os.path.join(MAIN_DIR, "data", "merged_interactions_new.csv"), index=False)
 
 print("✅ Merged dataset saved: merged_interactions.csv")
