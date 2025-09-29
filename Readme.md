@@ -3,7 +3,7 @@
 ![Confusion Matrix](confusion_matrix.png)
 
 # Zain:
-    Please use dataset inside data/merge_interactions
+    Please use dataset inside data/drugs_data.csv
 # 📘 MedPharma AI – Questionnaire (README)
 🔹 What Have I Done So Far?
 
