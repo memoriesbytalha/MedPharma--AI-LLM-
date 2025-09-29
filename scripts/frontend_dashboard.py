@@ -64,9 +64,9 @@ def safe_get(df, drug_col, smiles_col, formula_col, drug):
 
 # ---------- Load dataset ----------
 MAIN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_PATH = os.path.join(MAIN_DIR, "data", "merged_interactions.csv")   # change if needed
+DATA_PATH = os.path.join(MAIN_DIR, "data", "drugs_data.csv")   # change if needed
 if not os.path.exists(DATA_PATH):
-    st.error(f"CSV not found at {DATA_PATH}. Put merged_interactions.csv in data/ or edit DATA_PATH.")
+    st.error(f"CSV not found at {DATA_PATH}. Put drugs_data.csv in data/ or edit DATA_PATH.")
     st.stop()
 
 df = pd.read_csv(DATA_PATH)
@@ -78,7 +78,7 @@ smilesB_col = find_col(df, ['DrugB_SMILES','Drug_B_SMILES','SMILES_B'])
 formulaA_col = find_col(df, ['DrugA_Formula','Drug_A_Formula','Formula_A','Formula'])
 formulaB_col = find_col(df, ['DrugB_Formula','Drug_B_Formula','Formula_B'])
 level_col = find_col(df, ['Level','Interaction_Level','level'])
-explain_col = find_col(df, ['Interaction_Explanation','Explanation','explanation','interaction_explanation'])
+# explain_col = find_col(df, ['Interaction_Explanation','Explanation','explanation','interaction_explanation'])
 
 if drugA_col is None and 'Drug' in df.columns:
     drugA_col = 'Drug'
@@ -149,12 +149,6 @@ with col2:
             st.success("✅ Interaction found in dataset")
             levels = match_rows[level_col].unique().tolist()
             st.write("Level(s):", ", ".join(map(str, levels)))
-            if explain_col:
-                st.write("Explanation(s):")
-                for _, row in match_rows.iterrows():
-                    expl = row.get(explain_col, "")
-                    if pd.notna(expl) and str(expl).strip() != "":
-                        st.write("-", expl)
             st.write("Source rows:", match_rows.shape[0])
         else:
             st.warning("No direct interaction found in the dataset for this pair.")
@@ -216,3 +210,6 @@ with col2:
 # ---------- Footer ----------
 st.markdown("---")
 st.markdown("MedPharma AI — interactive demo. Shows chemical structures (SMILES), formulas and interaction details from your merged CSV.")
+
+
+

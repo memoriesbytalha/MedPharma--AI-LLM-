@@ -1,30 +1,14 @@
 import torch, random, numpy as np
-from sklearn.metrics import classification_report, f1_score, confusion_matrix
+from sklearn.metrics import classification_report, f1_score, confusion_matrix, accuracy_score
 from sklearn.utils.class_weight import compute_class_weight
-import matplotlib.pyplot as plt
-import seaborn as sns
 from torch_geometric.data import Data
 from models.edge_gnn import EdgeGNN
 import pickle, os
+import matplotlib.pyplot as plt
+import seaborn as sns
+import pandas as pd
 
 MAIN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# --------------------------
-# Focal Loss Implementation
-# --------------------------
-class FocalLoss(torch.nn.Module):
-    def __init__(self, alpha=None, gamma=2):
-        super(FocalLoss, self).__init__()
-        self.alpha = alpha
-        self.gamma = gamma
-
-    def forward(self, inputs, targets):
-        ce_loss = torch.nn.functional.cross_entropy(
-            inputs, targets, weight=self.alpha, reduction="none"
-        )
-        pt = torch.exp(-ce_loss)
-        focal_loss = ((1 - pt) ** self.gamma) * ce_loss
-        return focal_loss.mean()
 
 # --------------------------
 # Split edges into train/val/test
@@ -40,26 +24,25 @@ def split_edges(num_edges, train_frac=0.8, val_frac=0.1, seed=123):
 # --------------------------
 # Plot confusion matrix
 # --------------------------
-def plot_confusion(y_true, y_pred, labels, save_path=None):
+def plot_confusion_matrix(y_true, y_pred, labels, out_path="confusion_matrix.png"):
     cm = confusion_matrix(y_true, y_pred)
-    plt.figure(figsize=(6, 5))
+    plt.figure(figsize=(6,5))
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
                 xticklabels=labels, yticklabels=labels)
     plt.xlabel("Predicted")
-    plt.ylabel("Actual")
+    plt.ylabel("True")
     plt.title("Confusion Matrix")
-    if save_path:
-        plt.savefig(save_path, dpi=300, bbox_inches="tight")
-    plt.close()
-    return cm
+    plt.tight_layout()
+    plt.savefig(out_path)
+    print(f"Confusion matrix saved as {out_path}")
 
 # --------------------------
 # Main training function
 # --------------------------
-def main(csv_path, epochs=100, lr=5e-4, device='cuda'):
+def main(csv_path, epochs, lr=0.005, device='cuda'):
     device = torch.device(device if torch.cuda.is_available() else 'cpu')
 
-    # 🔹 Load the pre-saved PyG graph safely
+    # Load the pre-saved PyG graph safely
     with torch.serialization.safe_globals([Data]):
         data = torch.load(csv_path + '.pt', weights_only=False)
 
@@ -81,13 +64,10 @@ def main(csv_path, epochs=100, lr=5e-4, device='cuda'):
         classes=np.unique(y_numpy),
         y=y_numpy
     )
-    # Extra boost for Moderate (last class index)
-    class_weights_np[-1] *= 1.3
     class_weights = torch.tensor(class_weights_np, dtype=torch.float).to(device)
+    criterion = torch.nn.CrossEntropyLoss(weight=class_weights)
 
-    criterion = FocalLoss(alpha=class_weights, gamma=2)
-
-    # 🔹 Initialize EdgeGNN model
+    # Initialize EdgeGNN model
     model = EdgeGNN(
         num_nodes=num_nodes,
         node_embed_dim=128,
@@ -98,12 +78,16 @@ def main(csv_path, epochs=100, lr=5e-4, device='cuda'):
     data = data.to(device)
     y = y.to(device)
 
-    # 🔹 Optimizer
+    # Optimizer
     opt = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-5)
 
     # --------------------------
-    # Training loop
+    # For saving metrics per epoch
     # --------------------------
+    train_accs = []
+    val_f1s = []
+    train_losses = []
+
     best_val = 0.0
     best_state = None
 
@@ -115,29 +99,69 @@ def main(csv_path, epochs=100, lr=5e-4, device='cuda'):
         loss.backward()
         opt.step()
 
-        # --------------------------
+        # Train accuracy
+        preds_train = logits[train_idx].argmax(dim=1).cpu().numpy()
+        acc_train = accuracy_score(y[train_idx].cpu().numpy(), preds_train)
+
         # Validation
-        # --------------------------
         model.eval()
         with torch.no_grad():
             logits_eval, _ = model(data)
             preds = logits_eval.argmax(dim=1).cpu().numpy()
             y_all = y.cpu().numpy()
+            val_f1 = f1_score(y_all[val_idx], preds[val_idx], average='macro', zero_division=0)
 
-            # Macro and per-class F1
-            val_f1_macro = f1_score(y_all[val_idx], preds[val_idx], average='macro')
-            per_class_f1 = f1_score(y_all[val_idx], preds[val_idx], average=None)
-
-            moderate_f1 = per_class_f1[-1]  # Assuming last index is Moderate
-
-            if moderate_f1 > best_val:  # Save based on Moderate performance
-                best_val = moderate_f1
+            if val_f1 > best_val:
+                best_val = val_f1
                 best_state = model.state_dict()
+
+        # Save metrics
+        train_accs.append(acc_train)
+        val_f1s.append(val_f1)
+        train_losses.append(loss.item())
 
         if epoch % 5 == 0 or epoch == 1:
             print(f"Epoch {epoch} loss {loss.item():.4f} "
-                  f"valF1_macro {val_f1_macro:.4f} "
-                  f"ModerateF1 {moderate_f1:.4f}")
+                  f"trainAcc {acc_train:.4f} valF1 {val_f1:.4f}")
+
+    # --------------------------
+    # Save metrics to CSV
+    # --------------------------
+    metrics_df = pd.DataFrame({
+        'epoch': list(range(1, epochs+1)),
+        'train_loss': train_losses,
+        'train_accuracy': train_accs,
+        'val_f1': val_f1s
+    })
+    metrics_csv_path = os.path.join(MAIN_DIR, "training_metrics.csv")
+    metrics_df.to_csv(metrics_csv_path, index=False)
+    print(f"Training metrics saved as {metrics_csv_path}")
+
+    # --------------------------
+    # Plot metrics
+    # --------------------------
+    plt.figure()
+    plt.plot(range(1, epochs+1), train_losses, label='Train Loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
+    plt.title('Training Loss')
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(os.path.join(MAIN_DIR, "train_loss.png"))
+
+    plt.figure()
+    plt.plot(range(1, epochs+1), train_accs, label='Train Accuracy')
+    plt.plot(range(1, epochs+1), val_f1s, label='Validation F1')
+    plt.xlabel('Epoch')
+    plt.ylabel('Score')
+    plt.title('Training Accuracy & Validation F1')
+    plt.grid(True)
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(os.path.join(MAIN_DIR, "train_val_metrics.png"))
+
+    print(f"Training loss and accuracy/F1 plots saved.")
 
     # --------------------------
     # Load best model
@@ -160,22 +184,27 @@ def main(csv_path, epochs=100, lr=5e-4, device='cuda'):
         preds[test_idx],
         target_names=list(meta['label_encoder'].classes_)
     ))
+    print("Confusion matrix:")
+    print(confusion_matrix(y_all[test_idx], preds[test_idx]))
 
-    cm = plot_confusion(y_all[test_idx], preds[test_idx],
-                        labels=list(meta['label_encoder'].classes_),
-                        save_path=csv_path + "_confusion.png")
-    print("Confusion matrix:\n", cm)
+    # Save confusion matrix as image
+    plot_confusion_matrix(
+        y_true=y_all[test_idx],
+        y_pred=preds[test_idx],
+        labels=list(meta['label_encoder'].classes_),
+        out_path=os.path.join(MAIN_DIR, "confusion_matrix.png")
+    )
 
     # --------------------------
     # Save trained model weights
     # --------------------------
     torch.save(model.state_dict(), csv_path + '.edge_gnn.pt')
     print("Saved model:", csv_path + '.edge_gnn.pt')
-    print("Saved confusion matrix image:", csv_path + "_confusion.png")
+
 
 # --------------------------
 # Entry point
 # --------------------------
 if __name__ == '__main__':
-    csv_path = os.path.join(MAIN_DIR, "data", "interaction_explanations.csv")
-    main(csv_path=csv_path, epochs=100)
+    csv_path = os.path.join(MAIN_DIR, "data", "drugs_data.csv")
+    main(csv_path=csv_path, epochs=200)
