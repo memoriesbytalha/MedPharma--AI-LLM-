@@ -3,3 +3,6 @@ drugbank_all_structures.sdf.zip
 structures.sdf
 merged_interactions_new.csv
 merged_interactions.csv
+interaction_explanations.csv
+drugs_data.csv.pt
+drugs_data.csv.pt.meta
