@@ -1,10 +1,12 @@
+Classification Report
+
               precision    recall  f1-score   support
 
-       Major       0.76      0.91      0.83      1861
-       Minor       0.64      0.80      0.71       464
-    Moderate       0.96      0.83      0.89      6416
-     Unknown       0.83      0.96      0.89      2881
+       Major      0.850     0.882     0.866       451
+       Minor      0.675     0.874     0.761       190
+    Moderate      0.941     0.878     0.908       921
+     Unknown      0.878     0.854     0.866       438
 
-    accuracy                           0.87     11622
-   macro avg       0.80      0.87      0.83     11622
-weighted avg       0.88      0.87      0.87     11622
+    accuracy                          0.874      2000
+   macro avg      0.836     0.872     0.850      2000
+weighted avg      0.881     0.874     0.876      2000

@@ -1,7 +1,15 @@
-
+# Ignore Python cache & compiled files
 __pycache__/
 *.py[cod]
 *$py.class
 
+# Ignore specific files
+Neo4j-0aa904b7-Created-2025-10-04.txt
 
-__init__.py
+# Ignore folders
+lib/
+
+# Ignore config/test files if desired
+config.py
+db_test.py
+.env
