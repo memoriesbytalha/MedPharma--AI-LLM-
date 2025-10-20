@@ -24,7 +24,8 @@ from sklearn.preprocessing import LabelEncoder
 from models.edge_gnn import EdgeGNN
 from rdkit import Chem
 from rdkit.Chem import AllChem, Draw, DataStructs
-
+from gpt4all import GPT4All
+import pickle
 
 from dotenv import load_dotenv
 load_dotenv()  # Load .env variables
@@ -33,6 +34,17 @@ warnings.filterwarnings("ignore")
 warnings.simplefilter("ignore")
 warnings.warn("deprecated", DeprecationWarning)
 
+
+
+
+
+MAIN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(MAIN_DIR, "MED-PHARMA AI","data")
+MODEL_PATH = os.path.join(DATA_DIR, "output", "final", "edge_gnn_best.pt")
+DATA_PT = os.path.join(DATA_DIR, "balanced_drugs_data.csv.pt")
+META_PATH = os.path.join(DATA_DIR, "balanced_drugs_data.csv.meta.pkl")
+
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 #------NEO4J Setup-------#
 NEO4J_URI = os.getenv("NEO4J_URI")
@@ -44,7 +56,63 @@ driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 CSV_PATH = "data/drugs_data.csv"  # update with your path
 df = pd.read_csv(CSV_PATH)
 drug_list = sorted(list(set(df['Drug_A'].tolist() + df['Drug_B'].tolist())))
+
+
 #---------------------------#
+@st.cache_resource
+def load_model_data():
+    with torch.serialization.safe_globals([Data]):
+        data = torch.load(DATA_PT, map_location=DEVICE)
+    with open(META_PATH, "rb") as f:
+        meta = pickle.load(f)
+    node2idx = meta["node2idx"]
+    idx2node = meta["idx2node"]
+    label_encoder = meta["label_encoder"]
+    df = meta["df"]
+
+    model = EdgeGNN(
+        num_nodes=data.num_nodes,
+        node_embed_dim=128,
+        hidden_dim=256,
+        num_classes=len(label_encoder.classes_)
+    ).to(DEVICE)
+    model.load_state_dict(torch.load(MODEL_PATH, map_location=DEVICE))
+    model.eval()
+
+    return model, data, node2idx, idx2node, label_encoder, df
+
+
+# === Prediction Function ===
+def predict_interaction(drug_a, drug_b, model, data, node2idx, label_encoder):
+    drug_a, drug_b = drug_a.strip(), drug_b.strip()
+
+    if drug_a not in node2idx:
+        return None, f"❌ Drug '{drug_a}' not found in dataset."
+    if drug_b not in node2idx:
+        return None, f"❌ Drug '{drug_b}' not found in dataset."
+
+    src, dst = node2idx[drug_a], node2idx[drug_b]
+
+    with torch.no_grad():
+        x = model.node_emb(torch.arange(data.num_nodes, device=DEVICE))
+        x = model.input_proj(x)
+        for conv in model.convs:
+            h = conv(x, data.edge_index)
+            x = torch.relu(h) + x
+
+        edge_feat = torch.cat([x[src].unsqueeze(0), x[dst].unsqueeze(0)], dim=1)
+        pred = model.edge_mlp(edge_feat)
+        probs = torch.softmax(pred, dim=1).cpu().numpy()[0]
+        pred_label = pred.argmax(dim=1).item()
+        class_name = label_encoder.inverse_transform([pred_label])[0]
+        confidence = float(probs[pred_label])
+
+    result = {
+        "Predicted Interaction": class_name,
+        "Confidence": confidence,
+    }
+
+    return result, None
 
 # --------------------------
 # MongoDB Setup
@@ -97,51 +165,10 @@ def smiles_to_fp(smiles, radius=3, n_bits=512):
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-@st.cache_resource
-def load_gnn_model(model_path="output/edge_gnn_optimized.pt", csv_path="data/drugs_data.csv", device=device):
-    df = pd.read_csv(csv_path)
-    num_classes = df['Level'].nunique()
-
-    state_dict = torch.load(model_path, map_location=device)
-
-    num_nodes = state_dict.get("node_emb.weight", torch.zeros(1)).shape[0]
-
-    model = EdgeGNN(
-        num_nodes=num_nodes,
-        node_feat_dim=512,
-        node_embed_dim=512,
-        hidden_dim=768,
-        num_classes=num_classes,
-        dropout=0.2,
-        num_layers=3,
-    ).to(device)
-
-    model_state_dict = model.state_dict()
-    filtered_state_dict = {k:v for k,v in state_dict.items() if k in model_state_dict and model_state_dict[k].shape==v.shape}
-    model_state_dict.update(filtered_state_dict)
-    model.load_state_dict(model_state_dict, strict=False)
-    model.eval()
-
-    le = LabelEncoder()
-    le.fit(df['Level'])
-    return model, le
 
 
-def predict_interaction(model, smiles1, smiles2, label_encoder, device=device):
-    fp1 = smiles_to_fp(smiles1)
-    fp2 = smiles_to_fp(smiles2)
 
-    x = torch.tensor(np.vstack([fp1, fp2]), dtype=torch.float).to(device)
-    edge_index = torch.tensor([[0], [1]], dtype=torch.long).to(device)
-    data = Data(x=x, edge_index=edge_index)
 
-    with torch.no_grad():
-        logits, _ = model(data)
-        probs = torch.nn.functional.softmax(logits, dim=1)
-        pred = probs.mean(dim=0).argmax().item()
-        confidence = probs.mean(dim=0).max().item()
-
-    return label_encoder.inverse_transform([pred])[0], confidence
 
 
 # Cache SMILES → image
@@ -337,10 +364,12 @@ def contact():
 
 def inference():
     st.title("💊 Drug Interaction Prediction")
-    st.markdown("Enter two drugs to visualize their molecular structure and predict their interaction using our AI model:")
+    st.markdown("Enter two drugs to visualize their molecular structure and predict their interaction using the EdgeGNN model:")
 
-    device = 'cuda' if torch.cuda.is_available() else 'cpu'
-    model, label_encoder = load_gnn_model(device=device)
+    model, data, node2idx, idx2node, label_encoder, df = load_model_data()
+
+    # Build dropdowns
+    drug_list = sorted(list(set(df["Drug_A"]).union(set(df["Drug_B"]))))
 
     col1, col2 = st.columns(2)
     with col1:
@@ -349,64 +378,45 @@ def inference():
         drug2 = st.selectbox("Drug 2", options=drug_list)
 
     if st.button("🔍 Predict Interaction"):
-        if drug1 and drug2:
-            # 🔹 Check if the drug pair exists in the CSV (order-agnostic)
+        with st.spinner("Analyzing drug interaction..."):
             pair_df = df[((df['Drug_A'] == drug1) & (df['Drug_B'] == drug2)) |
-                         ((df['Drug_A'] == drug2) & (df['Drug_B'] == drug1))]
-
+                     ((df['Drug_A'] == drug2) & (df['Drug_B'] == drug1))]
             if pair_df.empty:
-                st.warning(f"⚠️ No interaction data found for {drug1} and {drug2} in CSV.")
-                return  # stop execution
-
-            row = pair_df.iloc[0]
-
-            # Determine SMILES and formulas according to order
-            if row['Drug_A'] == drug1:
-                smiles1, smiles2 = row['DrugA_SMILES'], row['DrugB_SMILES']
-                formula1, formula2 = row['DrugA_Formula'], row['DrugB_Formula']
+                st.warning(f"⚠️ No interaction data found for {drug1} and {drug2}.")
+                return
             else:
-                smiles1, smiles2 = row['DrugB_SMILES'], row['DrugA_SMILES']
-                formula1, formula2 = row['DrugB_Formula'], row['DrugA_Formula']
+                row = pair_df.iloc[0]
 
-            try:
-                # Generate molecule images
-                img1 = smiles_to_image_cached(smiles1)
-                img2 = smiles_to_image_cached(smiles2)
+                # Assign SMILES + formulas
+                if row["Drug_A"] == drug1:
+                    smiles1, smiles2 = row["DrugA_SMILES"], row["DrugB_SMILES"]
+                    formula1, formula2 = row["DrugA_Formula"], row["DrugB_Formula"]
+                else:
+                    smiles1, smiles2 = row["DrugB_SMILES"], row["DrugA_SMILES"]
+                    formula1, formula2 = row["DrugB_Formula"], row["DrugA_Formula"]
 
-                # Fingerprints
-                fp1 = smiles_to_fp_cached(smiles1)
-                fp2 = smiles_to_fp_cached(smiles2)
-
-                # Build 2-node graph for prediction
-                x = torch.tensor(np.vstack([fp1, fp2]), dtype=torch.float).to(device)
-                edge_index = torch.tensor([[0], [1]], dtype=torch.long).to(device)
-                data = Data(x=x, edge_index=edge_index)
-
-                # Model prediction
-                pred_level, confidence = predict_interaction(model, smiles1, smiles2, label_encoder, device=device)
-                import pdb; pdb.set_trace()
-
-
-                # Display results
+                # Visualization
                 st.markdown("### 🧪 Molecular Structures")
-                col1, col2 = st.columns(2)
-                with col1:
-                    st.image(img1, caption=f"{drug1}\nFormula: {formula1}")
-                with col2:
-                    st.image(img2, caption=f"{drug2}\nFormula: {formula2}")
-
-                st.markdown("---")
-                st.subheader("🔬 AI Prediction Results")
-
+                c1, c2 = st.columns(2)
+                with c1:
+                    st.image(smiles_to_image_cached(smiles1), caption=f"{drug1}\nFormula: {formula1}")
+                with c2:
+                    st.image(smiles_to_image_cached(smiles2), caption=f"{drug2}\nFormula: {formula2}")
                 
-                st.markdown(f"**Predicted Interaction Level:** {pred_level}")
-                
-                st.markdown(f"**Confidence:** {confidence*100:.2f}%")
 
-            except Exception as e:
-                st.error(f"❌ Error during prediction: {e}")
-        else:
-            st.error("⚠️ Please select both drugs to continue.")
+                # Find pair in CSV for molecular info
+                result, error = predict_interaction(drug1, drug2, model, data, node2idx, label_encoder)
+                st.success(f"💡 **Predicted Interaction:** {result['Predicted Interaction']} ({result['Confidence']*100:.2f}% confidence)")
+
+                if error:
+                    st.error(error)
+                    return
+        
+        
+
+        
+        
+
 
     
 

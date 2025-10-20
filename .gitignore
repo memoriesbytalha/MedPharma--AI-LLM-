@@ -13,3 +13,4 @@ lib/
 config.py
 db_test.py
 .env
+deepseek.py
