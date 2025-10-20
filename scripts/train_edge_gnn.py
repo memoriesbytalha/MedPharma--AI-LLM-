@@ -1,295 +1,71 @@
-# import os, pickle, torch, numpy as np, pandas as pd
-# from sklearn.preprocessing import LabelEncoder
-# from sklearn.model_selection import train_test_split
-# from sklearn.utils.class_weight import compute_class_weight
-# from sklearn.metrics import classification_report, f1_score, accuracy_score, confusion_matrix
-# from torch_geometric.data import Data
-# from rdkit import Chem
-# from rdkit.Chem import AllChem
-# import torch.nn.functional as F
-# import matplotlib.pyplot as plt
-# import seaborn as sns
-# from models.edge_gnn import EdgeGNN
-# import warnings
-# from torch_geometric.data import Data
-# warnings.filterwarnings("ignore")
-
-
-
-# # --------------------------
-# # Convert SMILES to fingerprints
-# # --------------------------
-# def smiles_to_fp(smiles, radius=2, n_bits=128):
-#     mol = Chem.MolFromSmiles(smiles)
-#     if mol is None:
-#         return np.zeros(n_bits)
-#     fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=n_bits)
-#     arr = np.zeros((1,))
-#     Chem.DataStructs.ConvertToNumpyArray(fp, arr)
-#     return arr
-
-# # --------------------------
-# # Prepare PyG Data
-# # --------------------------
-# def prepare_graph(csv_path, fp_dim=128):
-#     df = pd.read_csv(csv_path)
-#     le = LabelEncoder()
-#     df['Level_enc'] = le.fit_transform(df['Level'])
-
-#     # Create node features from all unique drugs
-#     drugs = pd.concat([df['Drug_A'], df['Drug_B']]).unique()
-#     drug2idx = {d:i for i,d in enumerate(drugs)}
-#     node_features = []
-#     for d in drugs:
-#         smiles = df[df['Drug_A']==d]['DrugA_SMILES'].iloc[0] if d in df['Drug_A'].values else df[df['Drug_B']==d]['DrugB_SMILES'].iloc[0]
-#         node_features.append(smiles_to_fp(smiles, n_bits=fp_dim))
-#     node_features = torch.tensor(np.array(node_features), dtype=torch.float)
-
-#     # Edge indices
-#     edge_index = torch.tensor([
-#         [drug2idx[a] for a in df['Drug_A']],
-#         [drug2idx[b] for b in df['Drug_B']]
-#     ], dtype=torch.long)
-
-#     # Edge labels
-#     y = torch.tensor(df['Level_enc'].values, dtype=torch.long)
-
-#     # PyG Data
-#     data = Data(x=node_features, edge_index=edge_index, y=y)
-#     meta = {'label_encoder': le, 'drug2idx': drug2idx}
-#     torch.save(data, csv_path + '.pt')
-#     pickle.dump(meta, open(csv_path + '.meta.pkl','wb'))
-#     print("Graph prepared and saved.")
-#     return data, meta
-
-# # --------------------------
-# # Plot confusion matrix
-# # --------------------------
-# def plot_confusion_matrix(y_true, y_pred, labels, out_path="confusion_matrix.png"):
-#     cm = confusion_matrix(y_true, y_pred)
-#     plt.figure(figsize=(6,5))
-#     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
-#                 xticklabels=labels, yticklabels=labels)
-#     plt.xlabel("Predicted")
-#     plt.ylabel("True")
-#     plt.title("Confusion Matrix")
-#     plt.tight_layout()
-#     plt.savefig(out_path)
-#     plt.close()
-
-# # --------------------------
-# # Split edges into train/val/test
-# # --------------------------
-# def split_edges(num_edges, train_frac=0.8, val_frac=0.1, seed=123):
-#     idx = np.arange(num_edges)
-#     np.random.seed(seed)
-#     np.random.shuffle(idx)
-#     n_train = int(train_frac * num_edges)
-#     n_val = int(val_frac * num_edges)
-#     return idx[:n_train], idx[n_train:n_train+n_val], idx[n_train+n_val:]
-
-# # --------------------------
-# # Training function
-# # --------------------------
-# def train_edge_gnn(csv_path, epochs=200, lrs=[0.0005, 0.001, 0.002, 0.005], device='cuda'):
-#     device = torch.device(device if torch.cuda.is_available() else 'cpu')
-#     with torch.serialization.safe_globals([Data]):
-#         data = torch.load(csv_path + '.pt', weights_only=False)
-#     meta = pickle.load(open(csv_path + '.meta.pkl','rb'))
-
-#     num_nodes = data.num_nodes
-#     num_edges = data.edge_index.size(1)
-#     print(f"Nodes: {num_nodes}, Edges: {num_edges}")
-
-#     y = data.y
-#     train_idx, val_idx, test_idx = split_edges(num_edges)
-
-#     y_numpy = y.cpu().numpy()
-#     class_weights_np = compute_class_weight(
-#         class_weight='balanced',
-#         classes=np.unique(y_numpy),
-#         y=y_numpy
-#     )
-#     class_weights = torch.tensor(class_weights_np, dtype=torch.float).to(device)
-
-#     for lr in lrs:
-#         print(f"\n--- Training with LR={lr} ---")
-#         model = EdgeGNN(
-#             num_nodes=num_nodes,
-#             node_feat_dim=data.x.size(1),
-#             node_embed_dim=256,
-#             hidden_dim=512,
-#             num_classes=len(meta['label_encoder'].classes_),
-#             dropout=0.3,
-#             use_node_features=True
-#         ).to(device)
-
-#         opt = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-5)
-#         criterion = torch.nn.CrossEntropyLoss(weight=class_weights)
-#         data = data.to(device)
-#         y = y.to(device)
-
-#         # For metrics
-#         train_accs, val_f1s, train_losses = [], [], []
-#         best_val = 0.0
-#         best_state = None
-
-#         for epoch in range(1, epochs+1):
-#             model.train()
-#             opt.zero_grad()
-#             logits, _ = model(data)
-#             loss = criterion(logits[train_idx], y[train_idx])
-#             loss.backward()
-#             opt.step()
-
-#             # Train accuracy
-#             preds_train = logits[train_idx].argmax(dim=1).cpu().numpy()
-#             acc_train = accuracy_score(y[train_idx].cpu().numpy(), preds_train)
-
-#             # Validation F1
-#             model.eval()
-#             with torch.no_grad():
-#                 logits_eval, _ = model(data)
-#                 preds_eval = logits_eval.argmax(dim=1).cpu().numpy()
-#                 val_f1 = f1_score(y.cpu().numpy()[val_idx], preds_eval[val_idx], average='macro', zero_division=0)
-
-#                 if val_f1 > best_val:
-#                     best_val = val_f1
-#                     best_state = model.state_dict()
-
-#             train_accs.append(acc_train)
-#             val_f1s.append(val_f1)
-#             train_losses.append(loss.item())
-
-#             if epoch % 10 == 0 or epoch == 1:
-#                 print(f"Epoch {epoch}: loss={loss.item():.4f}, trainAcc={acc_train:.4f}, valF1={val_f1:.4f}")
-
-#         # Save metrics
-#         metrics_df = pd.DataFrame({
-#             'epoch': list(range(1, epochs+1)),
-#             'train_loss': train_losses,
-#             'train_accuracy': train_accs,
-#             'val_f1': val_f1s
-#         })
-#         metrics_csv_path = os.path.join(MAIN_DIR, f"training_metrics_lr_{lr}.csv")
-#         metrics_df.to_csv(metrics_csv_path, index=False)
-#         print(f"Training metrics saved as {metrics_csv_path}")
-
-#         # Save graphs
-#         plt.figure()
-#         plt.plot(range(1, epochs+1), train_losses, label='Train Loss')
-#         plt.xlabel('Epoch'); plt.ylabel('Loss'); plt.title(f'Train Loss LR={lr}')
-#         plt.grid(True); plt.legend()
-#         plt.tight_layout()
-#         plt.savefig(os.path.join(MAIN_DIR, f"train_loss_lr_{lr}.png"))
-
-#         plt.figure()
-#         plt.plot(range(1, epochs+1), train_accs, label='Train Acc')
-#         plt.plot(range(1, epochs+1), val_f1s, label='Val F1')
-#         plt.xlabel('Epoch'); plt.ylabel('Score'); plt.title(f'Train Acc & Val F1 LR={lr}')
-#         plt.grid(True); plt.legend()
-#         plt.tight_layout()
-#         plt.savefig(os.path.join(MAIN_DIR, f"train_val_metrics_lr_{lr}.png"))
-#         plt.close()
-#         print("Training graphs saved.")
-
-#         # Load best model
-#         if best_state:
-#             model.load_state_dict(best_state)
-
-#         # Test metrics
-#         model.eval()
-#         with torch.no_grad():
-#             logits_final, _ = model(data)
-#             preds_test = logits_final.argmax(dim=1).cpu().numpy()
-#             y_test = y.cpu().numpy()[test_idx]
-
-#         print("\nTest classification report:")
-#         print(classification_report(y_test, preds_test[test_idx], target_names=list(meta['label_encoder'].classes_)))
-
-#         # Confusion matrix
-#         cm_path = os.path.join(MAIN_DIR, f"confusion_matrix_lr_{lr}.png")
-#         plot_confusion_matrix(y_test, preds_test[test_idx], list(meta['label_encoder'].classes_), cm_path)
-#         print(f"Confusion matrix saved as {cm_path}")
-
-#         # Save model
-#         model_path = os.path.join(MAIN_DIR, f"drugs_data_edge_gnn_lr_{lr}.pt")
-#         torch.save(model.state_dict(), model_path)
-#         print(f"Saved model: {model_path}")
-
-# # --------------------------
-# if __name__ == "__main__":
-#     MAIN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-#     csv_path = os.path.join(MAIN_DIR, "data", "drugs_data.csv")
-#     prepare_graph(csv_path)
-#     train_edge_gnn(csv_path, epochs=200, lrs=[0.005])
-
-import os, pickle, torch, numpy as np, pandas as pd
-from sklearn.preprocessing import LabelEncoder
-from sklearn.utils.class_weight import compute_class_weight
-from sklearn.metrics import classification_report, f1_score, accuracy_score, confusion_matrix
-from rdkit import Chem
-from rdkit.Chem import AllChem
-import torch.nn.functional as F
+import os, random, pickle
+import numpy as np
+import torch
+import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
-from models.edge_gnn import EdgeGNN
-import warnings
-warnings.filterwarnings("ignore")
+from sklearn.metrics import (
+    classification_report,
+    f1_score,
+    confusion_matrix,
+    accuracy_score
+)
+from sklearn.utils.class_weight import compute_class_weight
 from torch_geometric.data import Data
+from models.edge_gnn import EdgeGNN
+
+MAIN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FINAL_DIR = os.path.join(MAIN_DIR, "data", "output", "final")
+os.makedirs(FINAL_DIR, exist_ok=True)
 
 # --------------------------
-# Convert SMILES to fingerprints
+# Split edges into train/val/test
 # --------------------------
-def smiles_to_fp(smiles, radius=3, n_bits=512):
-    mol = Chem.MolFromSmiles(smiles)
-    if mol is None:
-        return np.zeros(n_bits)
-    fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius=radius, nBits=n_bits)
-    arr = np.zeros((n_bits,))
-    from rdkit import DataStructs
-    DataStructs.ConvertToNumpyArray(fp, arr)
-    return arr
+def split_edges(num_edges, train_frac=0.8, val_frac=0.1, seed=123):
+    idx = np.arange(num_edges)
+    np.random.seed(seed)
+    np.random.shuffle(idx)
+    n_train = int(train_frac * num_edges)
+    n_val = int(val_frac * num_edges)
+    return idx[:n_train], idx[n_train:n_train + n_val], idx[n_train + n_val:]
 
 # --------------------------
-# Prepare PyG Data from CSV
+# Early Stopping
 # --------------------------
-def prepare_graph(csv_path):
-    df = pd.read_csv(csv_path)
-    le = LabelEncoder()
-    df['Level_enc'] = le.fit_transform(df['Level'])
+class EarlyStopping:
+    def __init__(self, patience=15, min_delta=1e-4, save_path=None):
+        self.patience = patience
+        self.min_delta = min_delta
+        self.best_score = None
+        self.counter = 0
+        self.early_stop = False
+        self.save_path = save_path
 
-    drugs = pd.concat([df['Drug_A'], df['Drug_B']]).unique()
-    drug2idx = {d: i for i, d in enumerate(drugs)}
-
-    node_features = []
-    for d in drugs:
-        if d in df['Drug_A'].values:
-            smiles = df[df['Drug_A']==d]['DrugA_SMILES'].iloc[0]
+    def __call__(self, val_score, model):
+        if self.best_score is None:
+            self.best_score = val_score
+            self.save_checkpoint(model)
+        elif val_score > self.best_score + self.min_delta:
+            self.best_score = val_score
+            self.save_checkpoint(model)
+            self.counter = 0
         else:
-            smiles = df[df['Drug_B']==d]['DrugB_SMILES'].iloc[0]
-        node_features.append(smiles_to_fp(smiles))
+            self.counter += 1
+            print(f"🟡 EarlyStopping counter: {self.counter}/{self.patience}")
+            if self.counter >= self.patience:
+                self.early_stop = True
 
-    node_features = torch.tensor(np.array(node_features), dtype=torch.float)
-
-    edge_index = torch.tensor([
-        [drug2idx[a] for a in df['Drug_A']],
-        [drug2idx[b] for b in df['Drug_B']]
-    ], dtype=torch.long)
-
-    y = torch.tensor(df['Level_enc'].values, dtype=torch.long)
-
-    data = Data(x=node_features, edge_index=edge_index, y=y)
-    meta = {'label_encoder': le, 'drug2idx': drug2idx}
-    return data, meta
+    def save_checkpoint(self, model):
+        if self.save_path:
+            torch.save(model.state_dict(), self.save_path)
+            print(f"✅ Validation improved → Saving best model to {self.save_path}")
 
 # --------------------------
-# Confusion matrix
+# Plot confusion matrix
 # --------------------------
-def plot_confusion_matrix(y_true, y_pred, labels, out_path="confusion_matrix.png"):
+def plot_confusion_matrix(y_true, y_pred, labels, out_path):
     cm = confusion_matrix(y_true, y_pred)
-    plt.figure(figsize=(6,5))
+    plt.figure(figsize=(6, 5))
     sns.heatmap(cm, annot=True, fmt="d", cmap="Blues",
                 xticklabels=labels, yticklabels=labels)
     plt.xlabel("Predicted")
@@ -298,54 +74,95 @@ def plot_confusion_matrix(y_true, y_pred, labels, out_path="confusion_matrix.png
     plt.tight_layout()
     plt.savefig(out_path)
     plt.close()
+    print(f"✅ Confusion matrix saved as {out_path}")
 
 # --------------------------
-# Train/Test split
+# Plot training curves
 # --------------------------
-def split_edges(num_edges, train_frac=0.8, val_frac=0.1, seed=123):
-    idx = np.arange(num_edges)
-    np.random.seed(seed)
-    np.random.shuffle(idx)
-    n_train = int(train_frac*num_edges)
-    n_val = int(val_frac*num_edges)
-    return idx[:n_train], idx[n_train:n_train+n_val], idx[n_train+n_val:]
+def plot_training_curves(history, out_dir):
+    epochs = range(1, len(history["train_loss"]) + 1)
+
+    plt.figure()
+    plt.plot(epochs, history["train_loss"], label="Train Loss")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.title("Training Loss")
+    plt.legend()
+    plt.savefig(os.path.join(out_dir, "training_loss.png"))
+    plt.close()
+
+    plt.figure()
+    plt.plot(epochs, history["val_f1"], label="Val F1", color='orange')
+    plt.xlabel("Epoch")
+    plt.ylabel("F1 Score")
+    plt.title("Validation F1")
+    plt.legend()
+    plt.savefig(os.path.join(out_dir, "validation_f1.png"))
+    plt.close()
+
+    plt.figure()
+    plt.plot(epochs, history["train_acc"], label="Train Accuracy")
+    plt.plot(epochs, history["val_acc"], label="Val Accuracy", color='green')
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy")
+    plt.title("Training vs Validation Accuracy")
+    plt.legend()
+    plt.savefig(os.path.join(out_dir, "train_val_accuracy.png"))
+    plt.close()
+
+    print(f"✅ Training graphs saved in {out_dir}")
 
 # --------------------------
-# Training
+# Main training
 # --------------------------
-def train_edge_gnn(csv_path, epochs, lr=0.005, device='cuda'):
+def main(csv_path, epochs=300, lr=0.005, device='cuda'):
     device = torch.device(device if torch.cuda.is_available() else 'cpu')
-    data, meta = prepare_graph(csv_path)
-    data = data.to(device)
+
+    with torch.serialization.safe_globals([Data]):
+        data = torch.load(csv_path + '.pt', weights_only=False)
+    meta = pickle.load(open(csv_path + '.meta.pkl', 'rb'))
 
     num_nodes = data.num_nodes
     num_edges = data.edge_index.size(1)
-    y = data.y.to(device)
+    print(f"Nodes: {num_nodes} | Edges: {num_edges}")
 
-    train_idx, val_idx, test_idx = split_edges(num_edges)
+    y = data.y
+    train_idx, val_idx, test_idx = split_edges(num_edges, 0.8, 0.1)
 
-    class_weights = torch.tensor(compute_class_weight(
-        'balanced', classes=np.unique(y.cpu().numpy()), y=y.cpu().numpy()
-    ), dtype=torch.float).to(device)
+    y_numpy = y.cpu().numpy()
+    class_weights_np = compute_class_weight(
+        class_weight='balanced',
+        classes=np.unique(y_numpy),
+        y=y_numpy
+    )
+    class_weights = torch.tensor(class_weights_np, dtype=torch.float).to(device)
+    criterion = torch.nn.CrossEntropyLoss(weight=class_weights)
 
     model = EdgeGNN(
         num_nodes=num_nodes,
-        node_feat_dim=data.x.size(1),
-        node_embed_dim=512,
-        hidden_dim=768,
+        node_embed_dim=128,
+        hidden_dim=256,
         num_classes=len(meta['label_encoder'].classes_),
-        dropout=0.2,
-        num_layers=3,
     ).to(device)
 
+    data = data.to(device)
+    y = y.to(device)
     opt = torch.optim.Adam(model.parameters(), lr=lr, weight_decay=1e-5)
-    criterion = torch.nn.CrossEntropyLoss(weight=class_weights)
 
     best_val = 0.0
     best_state = None
-    train_accs, val_f1s, train_losses = [], [], []
+    history = {"train_loss": [], "val_f1": [], "train_acc": [], "val_acc": []}
 
-    for epoch in range(1, epochs+1):
+    early_stopper = EarlyStopping(
+        patience=20,
+        min_delta=1e-4,
+        save_path=os.path.join(FINAL_DIR, "edge_gnn_best.pt")
+    )
+
+    # --------------------------
+    # Training Loop
+    # --------------------------
+    for epoch in range(1, epochs + 1):
         model.train()
         opt.zero_grad()
         logits, _ = model(data)
@@ -353,53 +170,78 @@ def train_edge_gnn(csv_path, epochs, lr=0.005, device='cuda'):
         loss.backward()
         opt.step()
 
-        preds_train = logits[train_idx].argmax(dim=1)
-        acc_train = (preds_train == y[train_idx]).float().mean().item()
+        preds_train = logits[train_idx].argmax(dim=1).cpu().numpy()
+        y_train_np = y[train_idx].cpu().numpy()
+        acc_train = accuracy_score(y_train_np, preds_train)
 
         model.eval()
         with torch.no_grad():
             logits_eval, _ = model(data)
-            preds_eval = logits_eval.argmax(dim=1)
-            val_f1 = f1_score(y[val_idx].cpu(), preds_eval[val_idx].cpu(), average='macro', zero_division=0)
-            if val_f1 > best_val:
-                best_val = val_f1
-                best_state = model.state_dict()
+            preds_eval = logits_eval.argmax(dim=1).cpu().numpy()
+            y_val_np = y[val_idx].cpu().numpy()
+            val_f1 = f1_score(y_val_np, preds_eval[val_idx],
+                              average='macro', zero_division=0)
+            val_acc = accuracy_score(y_val_np, preds_eval[val_idx])
 
-        train_accs.append(acc_train)
-        val_f1s.append(val_f1)
-        train_losses.append(loss.item())
+        history["train_loss"].append(loss.item())
+        history["val_f1"].append(val_f1)
+        history["train_acc"].append(acc_train)
+        history["val_acc"].append(val_acc)
 
-        if epoch % 20 == 0 or epoch == 1:
-            print(f"Epoch {epoch}: loss={loss.item():.4f}, trainAcc={acc_train:.4f}, valF1={val_f1:.4f}")
+        if epoch % 5 == 0 or epoch == 1:
+            print(f"Epoch {epoch:03d} | Loss: {loss.item():.4f} | "
+                  f"TrainAcc: {acc_train:.4f} | ValAcc: {val_acc:.4f} | ValF1: {val_f1:.4f}")
 
+        # Early stopping check
+        early_stopper(val_f1, model)
+        if early_stopper.early_stop:
+            print(f"🛑 Early stopping triggered at epoch {epoch}")
+            break
+
+    # --------------------------
     # Load best model
-    if best_state:
-        model.load_state_dict(best_state)
+    # --------------------------
+    model.load_state_dict(torch.load(os.path.join(FINAL_DIR, "edge_gnn_best.pt")))
+    print(f"✅ Loaded best model for testing.")
 
-    # Test evaluation
+    # --------------------------
+    # Testing
+    # --------------------------
     model.eval()
     with torch.no_grad():
-        logits_test, _ = model(data)
-        preds_test = logits_test[test_idx].argmax(dim=1)
-        y_test = y[test_idx].cpu()
+        logits_final, _ = model(data)
+        preds = logits_final.argmax(dim=1).cpu().numpy()
+        y_all = y.cpu().numpy()
 
-    print("\nTest Classification Report:")
-    print(classification_report(y_test, preds_test.cpu(), target_names=list(meta['label_encoder'].classes_)))
+    labels = list(meta['label_encoder'].classes_)
+    report_dict = classification_report(
+        y_all[test_idx],
+        preds[test_idx],
+        target_names=labels,
+        output_dict=True,
+        zero_division=0
+    )
 
-    # Confusion matrix
-    print("\nPlotting confusion matrix...")
-    plot_confusion_matrix(y_test, preds_test.cpu(), list(meta['label_encoder'].classes_), "confusion_matrix_final.png")
-    print(confusion_matrix(y_test, preds_test.cpu()))
-    print("Confusion matrix saved.")
-    
-    # Save model
-    import os
+    df_report = pd.DataFrame(report_dict).transpose()
+    df_report.to_csv(os.path.join(FINAL_DIR, "classification_report.csv"))
+    print(f"✅ Classification report saved at {os.path.join(FINAL_DIR, 'classification_report.csv')}")
 
-    save_path = 'output/edge_gnn_best.pt'
-    os.makedirs(os.path.dirname(save_path), exist_ok=True)  # <-- create parent folder
-    torch.save(model.state_dict(), save_path)
-    print(f"Model saved to {save_path}")
+    plot_confusion_matrix(
+        y_true=y_all[test_idx],
+        y_pred=preds[test_idx],
+        labels=labels,
+        out_path=os.path.join(FINAL_DIR, "confusion_matrix.png")
+    )
+
+    plot_training_curves(history, FINAL_DIR)
+
+    print("\n📊 Final Test Report:")
+    print(classification_report(y_all[test_idx], preds[test_idx], target_names=labels))
+    print("\nConfusion Matrix:")
+    print(confusion_matrix(y_all[test_idx], preds[test_idx]))
+
+
 if __name__ == "__main__":
-    MAIN_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    csv_path = os.path.join(MAIN_DIR, "data", "drugs_data.csv")
-    train_edge_gnn(csv_path, epochs=200, lr=0.005)
+    csv_path = os.path.join(MAIN_DIR, "data", "balanced_drugs_data.csv")
+    main(csv_path=csv_path, epochs=300)
+
