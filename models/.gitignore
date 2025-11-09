@@ -1,5 +1,0 @@
-# ignore all __init__.py files anywhere in the repo
-__init__.py
-
-# ignore all __pycache__ directories anywhere in the repo
-__pycache__/
