@@ -1,0 +1,363 @@
+(medpharma-gpu) D:\FYP Try\Med-Pharma AI>python -m scripts.train_edge
+Nodes: 1342 | Edges: 36152
+Epoch 001 | Loss: 1.4252 | TrainAcc: 0.2565 | ValAcc: 0.2509 | ValF1: 0.1003
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 005 | Loss: 1.3637 | TrainAcc: 0.2879 | ValAcc: 0.3549 | ValF1: 0.3114
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+Epoch 010 | Loss: 1.3009 | TrainAcc: 0.3572 | ValAcc: 0.3975 | ValF1: 0.3757
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 015 | Loss: 1.1472 | TrainAcc: 0.5043 | ValAcc: 0.5300 | ValF1: 0.5260
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 020 | Loss: 0.9600 | TrainAcc: 0.6004 | ValAcc: 0.6158 | ValF1: 0.6002
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 025 | Loss: 0.8285 | TrainAcc: 0.6596 | ValAcc: 0.6844 | ValF1: 0.6736
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 030 | Loss: 0.7317 | TrainAcc: 0.7059 | ValAcc: 0.7184 | ValF1: 0.7089
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 035 | Loss: 0.6807 | TrainAcc: 0.7293 | ValAcc: 0.7447 | ValF1: 0.7352
+🟡 EarlyStopping counter: 1/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 040 | Loss: 0.6217 | TrainAcc: 0.7574 | ValAcc: 0.7602 | ValF1: 0.7526
+🟡 EarlyStopping counter: 1/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+Epoch 045 | Loss: 0.5849 | TrainAcc: 0.7728 | ValAcc: 0.7607 | ValF1: 0.7545
+🟡 EarlyStopping counter: 2/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 050 | Loss: 0.5587 | TrainAcc: 0.7800 | ValAcc: 0.7748 | ValF1: 0.7695
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+Epoch 055 | Loss: 0.5302 | TrainAcc: 0.7922 | ValAcc: 0.7878 | ValF1: 0.7833
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+Epoch 060 | Loss: 0.5153 | TrainAcc: 0.7973 | ValAcc: 0.7903 | ValF1: 0.7846
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 065 | Loss: 0.4884 | TrainAcc: 0.8024 | ValAcc: 0.7939 | ValF1: 0.7890
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+🟡 EarlyStopping counter: 5/20
+Epoch 070 | Loss: 0.4692 | TrainAcc: 0.8106 | ValAcc: 0.7959 | ValF1: 0.7920
+🟡 EarlyStopping counter: 6/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 075 | Loss: 0.4540 | TrainAcc: 0.8112 | ValAcc: 0.8033 | ValF1: 0.7990
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+Epoch 080 | Loss: 0.4401 | TrainAcc: 0.8196 | ValAcc: 0.8017 | ValF1: 0.7971
+🟡 EarlyStopping counter: 5/20
+🟡 EarlyStopping counter: 6/20
+🟡 EarlyStopping counter: 7/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 085 | Loss: 0.4289 | TrainAcc: 0.8246 | ValAcc: 0.8072 | ValF1: 0.8023
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+Epoch 090 | Loss: 0.4181 | TrainAcc: 0.8271 | ValAcc: 0.8003 | ValF1: 0.7965
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+🟡 EarlyStopping counter: 5/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 095 | Loss: 0.4015 | TrainAcc: 0.8332 | ValAcc: 0.8116 | ValF1: 0.8080
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+Epoch 100 | Loss: 0.3924 | TrainAcc: 0.8393 | ValAcc: 0.8138 | ValF1: 0.8090
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 105 | Loss: 0.3781 | TrainAcc: 0.8394 | ValAcc: 0.8136 | ValF1: 0.8088
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 110 | Loss: 0.3689 | TrainAcc: 0.8449 | ValAcc: 0.8207 | ValF1: 0.8176
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 115 | Loss: 0.3603 | TrainAcc: 0.8479 | ValAcc: 0.8196 | ValF1: 0.8166
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 120 | Loss: 0.3436 | TrainAcc: 0.8554 | ValAcc: 0.8202 | ValF1: 0.8161
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+🟡 EarlyStopping counter: 5/20
+Epoch 125 | Loss: 0.3397 | TrainAcc: 0.8564 | ValAcc: 0.8290 | ValF1: 0.8270
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+Epoch 130 | Loss: 0.3315 | TrainAcc: 0.8598 | ValAcc: 0.8304 | ValF1: 0.8274
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+Epoch 135 | Loss: 0.3224 | TrainAcc: 0.8636 | ValAcc: 0.8271 | ValF1: 0.8226
+🟡 EarlyStopping counter: 5/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+Epoch 140 | Loss: 0.3151 | TrainAcc: 0.8676 | ValAcc: 0.8307 | ValF1: 0.8272
+🟡 EarlyStopping counter: 2/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 145 | Loss: 0.3114 | TrainAcc: 0.8679 | ValAcc: 0.8357 | ValF1: 0.8332
+🟡 EarlyStopping counter: 1/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+Epoch 150 | Loss: 0.2978 | TrainAcc: 0.8752 | ValAcc: 0.8387 | ValF1: 0.8359
+🟡 EarlyStopping counter: 2/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+Epoch 155 | Loss: 0.2931 | TrainAcc: 0.8771 | ValAcc: 0.8434 | ValF1: 0.8407
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 160 | Loss: 0.2874 | TrainAcc: 0.8800 | ValAcc: 0.8467 | ValF1: 0.8437
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 165 | Loss: 0.2762 | TrainAcc: 0.8845 | ValAcc: 0.8495 | ValF1: 0.8467
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+Epoch 170 | Loss: 0.2759 | TrainAcc: 0.8860 | ValAcc: 0.8479 | ValF1: 0.8453
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+🟡 EarlyStopping counter: 5/20
+🟡 EarlyStopping counter: 6/20
+Epoch 175 | Loss: 0.2686 | TrainAcc: 0.8884 | ValAcc: 0.8440 | ValF1: 0.8422
+🟡 EarlyStopping counter: 7/20
+🟡 EarlyStopping counter: 8/20
+🟡 EarlyStopping counter: 9/20
+🟡 EarlyStopping counter: 10/20
+🟡 EarlyStopping counter: 11/20
+Epoch 180 | Loss: 0.2683 | TrainAcc: 0.8888 | ValAcc: 0.8492 | ValF1: 0.8480
+🟡 EarlyStopping counter: 12/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+Epoch 185 | Loss: 0.2692 | TrainAcc: 0.8876 | ValAcc: 0.8562 | ValF1: 0.8544
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+🟡 EarlyStopping counter: 5/20
+🟡 EarlyStopping counter: 6/20
+Epoch 190 | Loss: 0.2511 | TrainAcc: 0.8974 | ValAcc: 0.8550 | ValF1: 0.8528
+🟡 EarlyStopping counter: 7/20
+🟡 EarlyStopping counter: 8/20
+🟡 EarlyStopping counter: 9/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 195 | Loss: 0.2404 | TrainAcc: 0.9026 | ValAcc: 0.8656 | ValF1: 0.8624
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+Epoch 200 | Loss: 0.2340 | TrainAcc: 0.9035 | ValAcc: 0.8664 | ValF1: 0.8638
+🟡 EarlyStopping counter: 3/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+Epoch 205 | Loss: 0.2286 | TrainAcc: 0.9048 | ValAcc: 0.8653 | ValF1: 0.8631
+🟡 EarlyStopping counter: 4/20
+🟡 EarlyStopping counter: 5/20
+🟡 EarlyStopping counter: 6/20
+🟡 EarlyStopping counter: 7/20
+🟡 EarlyStopping counter: 8/20
+Epoch 210 | Loss: 0.2235 | TrainAcc: 0.9085 | ValAcc: 0.8669 | ValF1: 0.8650
+🟡 EarlyStopping counter: 9/20
+🟡 EarlyStopping counter: 10/20
+🟡 EarlyStopping counter: 11/20
+🟡 EarlyStopping counter: 12/20
+🟡 EarlyStopping counter: 13/20
+Epoch 215 | Loss: 0.2183 | TrainAcc: 0.9095 | ValAcc: 0.8675 | ValF1: 0.8655
+🟡 EarlyStopping counter: 14/20
+🟡 EarlyStopping counter: 15/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 220 | Loss: 0.2204 | TrainAcc: 0.9105 | ValAcc: 0.8755 | ValF1: 0.8736
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+Epoch 225 | Loss: 0.2131 | TrainAcc: 0.9130 | ValAcc: 0.8739 | ValF1: 0.8720
+🟡 EarlyStopping counter: 5/20
+🟡 EarlyStopping counter: 6/20
+🟡 EarlyStopping counter: 7/20
+🟡 EarlyStopping counter: 8/20
+🟡 EarlyStopping counter: 9/20
+Epoch 230 | Loss: 0.2077 | TrainAcc: 0.9160 | ValAcc: 0.8739 | ValF1: 0.8722
+🟡 EarlyStopping counter: 10/20
+🟡 EarlyStopping counter: 11/20
+🟡 EarlyStopping counter: 12/20
+🟡 EarlyStopping counter: 13/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 235 | Loss: 0.2036 | TrainAcc: 0.9182 | ValAcc: 0.8755 | ValF1: 0.8734
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+🟡 EarlyStopping counter: 5/20
+Epoch 240 | Loss: 0.2045 | TrainAcc: 0.9162 | ValAcc: 0.8763 | ValF1: 0.8743
+🟡 EarlyStopping counter: 6/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+Epoch 245 | Loss: 0.1967 | TrainAcc: 0.9210 | ValAcc: 0.8769 | ValF1: 0.8748
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+🟡 EarlyStopping counter: 5/20
+🟡 EarlyStopping counter: 6/20
+Epoch 250 | Loss: 0.1983 | TrainAcc: 0.9209 | ValAcc: 0.8780 | ValF1: 0.8762
+🟡 EarlyStopping counter: 7/20
+🟡 EarlyStopping counter: 8/20
+🟡 EarlyStopping counter: 9/20
+🟡 EarlyStopping counter: 10/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 255 | Loss: 0.1947 | TrainAcc: 0.9217 | ValAcc: 0.8783 | ValF1: 0.8766
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+🟡 EarlyStopping counter: 5/20
+Epoch 260 | Loss: 0.1911 | TrainAcc: 0.9227 | ValAcc: 0.8799 | ValF1: 0.8781
+🟡 EarlyStopping counter: 6/20
+🟡 EarlyStopping counter: 7/20
+🟡 EarlyStopping counter: 8/20
+🟡 EarlyStopping counter: 9/20
+🟡 EarlyStopping counter: 10/20
+Epoch 265 | Loss: 0.1789 | TrainAcc: 0.9284 | ValAcc: 0.8794 | ValF1: 0.8776
+🟡 EarlyStopping counter: 11/20
+🟡 EarlyStopping counter: 12/20
+🟡 EarlyStopping counter: 13/20
+🟡 EarlyStopping counter: 14/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 270 | Loss: 0.1835 | TrainAcc: 0.9265 | ValAcc: 0.8835 | ValF1: 0.8819
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+Epoch 275 | Loss: 0.1776 | TrainAcc: 0.9282 | ValAcc: 0.8855 | ValF1: 0.8840
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+Epoch 280 | Loss: 0.1724 | TrainAcc: 0.9313 | ValAcc: 0.8827 | ValF1: 0.8816
+🟡 EarlyStopping counter: 5/20
+🟡 EarlyStopping counter: 6/20
+🟡 EarlyStopping counter: 7/20
+🟡 EarlyStopping counter: 8/20
+🟡 EarlyStopping counter: 9/20
+Epoch 285 | Loss: 0.1771 | TrainAcc: 0.9304 | ValAcc: 0.8822 | ValF1: 0.8809
+🟡 EarlyStopping counter: 10/20
+🟡 EarlyStopping counter: 11/20
+🟡 EarlyStopping counter: 12/20
+🟡 EarlyStopping counter: 13/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 290 | Loss: 0.1707 | TrainAcc: 0.9320 | ValAcc: 0.8833 | ValF1: 0.8819
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+✅ Validation improved → Saving best model to D:\FYP Try\Med-Pharma AI\data\output\final\edge_gnn_best.pt
+Epoch 295 | Loss: 0.1631 | TrainAcc: 0.9357 | ValAcc: 0.8855 | ValF1: 0.8843
+🟡 EarlyStopping counter: 1/20
+🟡 EarlyStopping counter: 2/20
+🟡 EarlyStopping counter: 3/20
+🟡 EarlyStopping counter: 4/20
+🟡 EarlyStopping counter: 5/20
+Epoch 300 | Loss: 0.1652 | TrainAcc: 0.9334 | ValAcc: 0.8869 | ValF1: 0.8857
+🟡 EarlyStopping counter: 6/20
