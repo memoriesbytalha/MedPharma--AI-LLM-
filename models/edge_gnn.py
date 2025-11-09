@@ -36,4 +36,7 @@ class EdgeGNN(nn.Module):
         edge_feat = torch.cat([x[src], x[dst]], dim=1)
         logits = self.edge_mlp(edge_feat)
         return logits, x
-
+    def forward_edge_feat(self, edge_feat):
+        # edge_feat is already concatenated [x_src, x_dst] for a single edge or batch
+        logits = self.edge_mlp(edge_feat)
+        return logits

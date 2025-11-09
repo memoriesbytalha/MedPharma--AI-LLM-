@@ -1,5 +1,5 @@
 # Ignore Python cache & compiled files
-__pycache__/
+*__pycache__/
 *.py[cod]
 *$py.class
 
@@ -14,3 +14,7 @@ config.py
 db_test.py
 .env
 deepseek.py
+app.py
+explanation_graph.png
+main.py
+test.py
