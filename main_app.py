@@ -56,7 +56,7 @@ def create_explanation_bot(openrouter_api_key):
     """Initialize LangChain bot for drug interaction explanations using OpenRouter"""
     
     llm = ChatOpenAI(
-        model="minimax/minimax-m2:free",  # Free model on OpenRouter
+        model="z-ai/glm-4.5-air:free",  # Free model on OpenRouter
         openai_api_key=openrouter_api_key,
         openai_api_base="https://openrouter.ai/api/v1",
         temperature=0.7,
@@ -710,7 +710,7 @@ st.set_page_config(
     initial_sidebar_state="collapsed"
 )
 
-BACKGROUND = Path("images/background.jpg")
+BACKGROUND = Path("images/1.jpeg")
 
 def smiles_to_image(smiles, size=(350, 350)):
     mol = Chem.MolFromSmiles(smiles)
@@ -942,7 +942,7 @@ def inference_with_explanation():
 
             # ====== PATHWAY EXPLAINER ======
             st.markdown("---")
-            st.markdown("### 🛤️ Interaction Pathway Analysis")
+            st.markdown("### Pathway Analysis")
             
             progress_bar = st.progress(0)
             status_text = st.empty()
@@ -1009,7 +1009,7 @@ def inference_with_explanation():
                 "pathways": explanation.get('pathways', [])
             })
             
-            st.markdown("### 📝 Layman-Friendly Explanation")
+            st.markdown("### 📝Explanation")
             st.info(layman_text)
 
             
