@@ -966,98 +966,101 @@ def inference_with_explanation():
 
             # Predict interaction
             result, error = predict_interaction(drug1, drug2, model, data, node2idx, label_encoder)
-            if error:
-                st.error(error)
-                return
+            predicted = result.get("Predicted Interaction")
 
-            predicted_interaction = result['Predicted Interaction']
-            confidence = result['Confidence']
-
-            st.success(f"💡 **Predicted Interaction:** {predicted_interaction} ({confidence*100:.2f}% confidence)")
-
-            # ====== PATHWAY EXPLAINER ======
-            st.markdown("---")
-            st.markdown("### 🛤️ Interaction Pathway Analysis")
-            
-            progress_bar = st.progress(0)
-            status_text = st.empty()
-            
-            status_text.text("Finding pathways between drugs...")
-            progress_bar.progress(30)
-            
-            explanation = pathway_explainer.explain_pathways(
-                drug1, drug2,
-                max_paths=max_paths,
-                max_path_length=max_length
-            )
-            
-            progress_bar.progress(100)
-            status_text.empty()
-            progress_bar.empty()
-            
-            if 'error' in explanation:
-                st.error(f"⚠️ {explanation['error']}")
-                return
-            
-            if 'warning' in explanation:
-                st.warning(f"⚠️ {explanation['warning']}")
-                st.info("💡 The drugs may not have direct or indirect connections in the knowledge graph. The prediction is based on learned patterns from similar drug structures.")
-                return
-            
-            # Display summary
-            st.markdown(f"""
-            <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; margin: 20px 0;'>
-                <h3 style='color: white; margin: 0;'>📊 Pathway Summary</h3>
-                <p style='color: white; font-size: 18px; margin: 10px 0;'>
-                    <strong>Query:</strong> {explanation['drug_a']} + {explanation['drug_b']}<br>
-                    <strong>Prediction:</strong> {explanation['prediction']} ({explanation['confidence']*100:.1f}% confidence)<br>
-                    <strong>Total Pathways Found:</strong> {explanation['total_paths_found']}
-                </p>
-            </div>
-            """, unsafe_allow_html=True)
-            
-            # Display pathways
-            st.markdown("#### 🔗 Top Connecting Pathways")
-            
-            for pathway in explanation['pathways']:
-                with st.expander(f"**Pathway {pathway['rank']}** | Importance: {pathway['importance']:.3f} | Length: {pathway['length']} hops", expanded=(pathway['rank'] <= 2)):
-                    st.markdown(f"**Path:** `{pathway['path']}`")
-                    st.markdown(f"**Explanation:** {pathway['explanation']}")
-                    
-                    # Color-code intermediate drugs
-                    if pathway['length'] > 1:
-                        st.markdown("**Intermediate Drugs:**")
-                        intermediate = pathway['path_drugs'][1:-1]
-                        cols = st.columns(len(intermediate))
-                        for idx, drug in enumerate(intermediate):
-                            with cols[idx]:
-                                st.markdown(f"<div style='background-color: #e3f2fd; padding: 10px; border-radius: 5px; text-align: center;'>{drug}</div>", unsafe_allow_html=True)
-            layman_chain = create_explanation_bot(OPENROUTER_API_KEY)
-
-            layman_text = generate_layman_explanation_with_formula(layman_chain, {
-                "drug_a": drug1,
-                "drug_b": drug2,
-                "drug_a_formula": formula1,
-                "drug_b_formula": formula2,
-                "prediction": predicted_interaction,
-                "confidence": confidence,
-                "pathways": explanation.get('pathways', [])
-            })
-            
-            st.markdown("### 📝 Layman-Friendly Explanation")
-            st.info(layman_text)
-
-            
-            # Technical details
-            with st.expander("📊 Technical Details"):
-                st.write(f"**Drug A SMILES:** {smiles1}")
-                st.write(f"**Drug B SMILES:** {smiles2}")
-                st.write(f"**Prediction Confidence:** {confidence*100:.2f}%")
-                st.write(f"**Total Pathways Discovered:** {explanation['total_paths_found']}")
-                st.write(f"**Pathways Shown:** {len(explanation['pathways'])}")
+            if predicted == "Unknown":
+                st.info("⚠️ Interaction is unknown. This may be updated when more data becomes available.")
+            else:
+                st.success(f"✅ Predicted Interaction: {predicted}")
                 
-                st.markdown("**Full Pathway Data:**")
-                st.json(explanation)
+                predicted_interaction = result['Predicted Interaction']
+                confidence = result['Confidence']
+    
+                st.success(f"💡 **Predicted Interaction:** {predicted_interaction} ({confidence*100:.2f}% confidence)")
+    
+                # ====== PATHWAY EXPLAINER ======
+                st.markdown("---")
+                st.markdown("### 🛤️ Interaction Pathway Analysis")
+                
+                progress_bar = st.progress(0)
+                status_text = st.empty()
+                
+                status_text.text("Finding pathways between drugs...")
+                progress_bar.progress(30)
+                
+                explanation = pathway_explainer.explain_pathways(
+                    drug1, drug2,
+                    max_paths=max_paths,
+                    max_path_length=max_length
+                )
+                
+                progress_bar.progress(100)
+                status_text.empty()
+                progress_bar.empty()
+                
+                if 'error' in explanation:
+                    st.error(f"⚠️ {explanation['error']}")
+                    return
+                
+                if 'warning' in explanation:
+                    st.warning(f"⚠️ {explanation['warning']}")
+                    st.info("💡 The drugs may not have direct or indirect connections in the knowledge graph. The prediction is based on learned patterns from similar drug structures.")
+                    return
+                
+                # Display summary
+                st.markdown(f"""
+                <div style='background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 10px; margin: 20px 0;'>
+                    <h3 style='color: white; margin: 0;'>📊 Pathway Summary</h3>
+                    <p style='color: white; font-size: 18px; margin: 10px 0;'>
+                        <strong>Query:</strong> {explanation['drug_a']} + {explanation['drug_b']}<br>
+                        <strong>Prediction:</strong> {explanation['prediction']} ({explanation['confidence']*100:.1f}% confidence)<br>
+                        <strong>Total Pathways Found:</strong> {explanation['total_paths_found']}
+                    </p>
+                </div>
+                """, unsafe_allow_html=True)
+                
+                # Display pathways
+                st.markdown("#### 🔗 Top Connecting Pathways")
+                
+                for pathway in explanation['pathways']:
+                    with st.expander(f"**Pathway {pathway['rank']}** | Importance: {pathway['importance']:.3f} | Length: {pathway['length']} hops", expanded=(pathway['rank'] <= 2)):
+                        st.markdown(f"**Path:** `{pathway['path']}`")
+                        st.markdown(f"**Explanation:** {pathway['explanation']}")
+                        
+                        # Color-code intermediate drugs
+                        if pathway['length'] > 1:
+                            st.markdown("**Intermediate Drugs:**")
+                            intermediate = pathway['path_drugs'][1:-1]
+                            cols = st.columns(len(intermediate))
+                            for idx, drug in enumerate(intermediate):
+                                with cols[idx]:
+                                    st.markdown(f"<div style='background-color: #e3f2fd; padding: 10px; border-radius: 5px; text-align: center;'>{drug}</div>", unsafe_allow_html=True)
+                layman_chain = create_explanation_bot(OPENROUTER_API_KEY)
+    
+                layman_text = generate_layman_explanation_with_formula(layman_chain, {
+                    "drug_a": drug1,
+                    "drug_b": drug2,
+                    "drug_a_formula": formula1,
+                    "drug_b_formula": formula2,
+                    "prediction": predicted_interaction,
+                    "confidence": confidence,
+                    "pathways": explanation.get('pathways', [])
+                })
+                
+                st.markdown("### 📝 Layman-Friendly Explanation")
+                st.info(layman_text)
+    
+                
+                # Technical details
+                with st.expander("📊 Technical Details"):
+                    st.write(f"**Drug A SMILES:** {smiles1}")
+                    st.write(f"**Drug B SMILES:** {smiles2}")
+                    st.write(f"**Prediction Confidence:** {confidence*100:.2f}%")
+                    st.write(f"**Total Pathways Discovered:** {explanation['total_paths_found']}")
+                    st.write(f"**Pathways Shown:** {len(explanation['pathways'])}")
+                    
+                    st.markdown("**Full Pathway Data:**")
+                    st.json(explanation)
 
 # ==================== NAVIGATION ====================
 
