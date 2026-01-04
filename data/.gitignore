@@ -1,5 +1,4 @@
-drugbank_all_structure_links.csv.zip
-drugbank_all_structures.sdf.zip
-structures.sdf
-merged_interactions_new.csv
-merged_interactions.csv
+balanced_drugs_data.csv_chem.meta.pkl
+balanced_drugs_data.csv_chem.pt
+final.csv
+fp_elements_library.csv

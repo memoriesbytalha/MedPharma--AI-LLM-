@@ -33,7 +33,7 @@ def smiles_to_fp(smiles, n_bits=256):
 # ===============================
 # Build Graph from CSV
 # ===============================
-def build_graph_from_csv(csv_path, undirected=True, node_feature_type='smiles'):
+def build_graph_from_csv(csv_path, undirected=True, node_feature_type='smiles',output_dir="output"):
     df = pd.read_csv(csv_path)
     df['Drug_A'] = df['Drug_A'].astype(str).str.strip()
     df['Drug_B'] = df['Drug_B'].astype(str).str.strip()
@@ -42,7 +42,7 @@ def build_graph_from_csv(csv_path, undirected=True, node_feature_type='smiles'):
     # --- Create node index mapping ---
     drugs = sorted(set(df['Drug_A']).union(df['Drug_B']))
     node2idx = {d: i for i, d in enumerate(drugs)}
-    idx2node = {i: d for d, i in node2idx.items()}
+    idx2node = {i: d for d, i in node2idx.items()}  
 
     df['u'] = df['Drug_A'].map(node2idx)
     df['v'] = df['Drug_B'].map(node2idx)
@@ -97,16 +97,17 @@ def build_graph_from_csv(csv_path, undirected=True, node_feature_type='smiles'):
 
     # --- Save graph + metadata ---
     meta = {'node2idx': node2idx, 'idx2node': idx2node, 'label_encoder': le, 'df': df}
-    torch.save(data, csv_path + '.pt')
+    torch.save(data, output_dir + '.pt')
     with open(csv_path + '.meta.pkl', 'wb') as f:
         pickle.dump(meta, f)
 
-    print(f"✅ Saved graph: nodes={len(drugs)} edges={edge_index.size(1)} features={x.size(1)} -> {csv_path}.pt")
+    print(f"✅ Saved graph: nodes={len(drugs)} edges={edge_index.size(1)} features={x.size(1)} -> {output_dir}.pt")
     return data, meta
 
 # ===============================
 # Main
 # ===============================
 if __name__ == '__main__':
-    csv_path = os.path.join(MAIN_DIR, "data", "drugs_data.csv")
-    build_graph_from_csv(csv_path)
+    output_dir = os.path.join(MAIN_DIR, "output", "graph_data")
+    csv_path = os.path.join(MAIN_DIR, "data", "balanced_drugs_data.csv")
+    build_graph_from_csv(csv_path,output_dir=output_dir)
